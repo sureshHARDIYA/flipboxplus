@@ -21,7 +21,6 @@ class SKMFlipBox {
   }
 
   constructor({ data, api }) {
-    console.log('data', data);
     this.api = api;
     this.data = {
       rows: data?.rows ?? [],
@@ -130,30 +129,18 @@ class SKMFlipBox {
    * @returns
    */
   renderSlide(index, row) {
-    const slideContainer = createElement('div', [
-      'mySlides',
-      'fade',
-      'cdx-resource',
-    ]);
+    const slideContainer = createElement('div', ['mySlides', 'fade']);
     const slideIndex = createElement('div', ['slideIndex'], {
       innerHTML: `${index + 1}/${this.data.rows.length}`,
     });
-    const frontText = createElement(
-      'div',
-      ['front-content', 'cdx-resource__message'],
-      {
-        innerHTML: row.front,
-        contentEditable: false,
-      },
-    );
-    const captionText = createElement(
-      'div',
-      ['back-content', 'caption', 'cdx-resource__message'],
-      {
-        innerHTML: row.back,
-        contentEditable: false,
-      },
-    );
+    const frontText = createElement('div', ['front-content', 'editable'], {
+      innerHTML: row.front,
+      contentEditable: false,
+    });
+    const captionText = createElement('div', ['back-content', 'editable'], {
+      innerHTML: row.back,
+      contentEditable: false,
+    });
 
     slideContainer.appendChild(slideIndex);
     slideContainer.appendChild(frontText);
@@ -219,13 +206,26 @@ class SKMFlipBox {
     this.editing = true;
 
     const slides = document.getElementsByClassName('mySlides');
-    this.setEditable(slides[this.currentSlideIndex], true);
+    const currentSlide = slides[this.currentSlideIndex];
+    this.setEditable(currentSlide, true);
+
     this.updateButtonState();
   }
 
   setEditable(slide, value) {
     slide.querySelector('.front-content').contentEditable = value;
     slide.querySelector('.back-content').contentEditable = value;
+
+    const editableArea = slide.querySelector('.editable');
+    if (value) {
+      slide.classList.add('focus-visible');
+      editableArea.focus();
+      editableArea.style.caretColor = 'black';
+    }
+
+    if (!value) {
+      editableArea.classList.remove('focus-visible');
+    }
   }
 
   saveSlide() {
