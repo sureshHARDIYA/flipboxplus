@@ -70,18 +70,31 @@ class SKMFlipBox {
       innerHTML: `Edit`,
       disabled: this.editing,
     });
-    editButton.addEventListener('click', () => this.editSlide());
+    editButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.editSlide();
+    });
 
     const saveButton = createElement('button', ['action', 'saveButton'], {
       innerHTML: `Save`,
       disabled: !this.editing,
     });
-    saveButton.addEventListener('click', () => this.saveSlide());
+
+    saveButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.saveSlide();
+    });
 
     const addButton = createElement('button', ['action', 'addButton'], {
       innerHTML: `Add`,
     });
-    addButton.addEventListener('click', () => this.addSlide());
+    addButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.addSlide();
+    });
 
     const deleteButton = createElement('button', ['action', 'deleteButton'], {
       innerHTML: `Delete`,
@@ -218,7 +231,7 @@ class SKMFlipBox {
 
     const editableArea = slide.querySelector('.editable');
     if (value) {
-      slide.classList.add('focus-visible');
+      editableArea.classList.add('focus-visible');
       editableArea.focus();
       editableArea.style.caretColor = 'black';
     }
