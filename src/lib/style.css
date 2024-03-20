@@ -243,6 +243,7 @@ img {
     font-size: 13px;
     cursor: pointer;
     border-radius: 5px;
+    font-weight: bold;
 }
 
 .button-wrapper {

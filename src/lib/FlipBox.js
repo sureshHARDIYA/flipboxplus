@@ -1,5 +1,7 @@
 import { createElement } from '../helpers/createElement';
 
+import './style.css';
+
 class SKMFlipBox {
   static get toolbox() {
     return {
