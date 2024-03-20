@@ -14,6 +14,7 @@ class SKMFlipBox {
 
 
   constructor({ data, config, api, readOnly }) {
+    this.api = api;
     this.data = {
       rows: [
         {
@@ -44,119 +45,161 @@ class SKMFlipBox {
     };
     this.widgetWrapper = undefined;
     this.editing = false;
+    this.currentSlideIndex = 0;
   }
 
   render() {
     this.widgetWrapper = createElement('div', ['outer-container']);
-    const wrapper = createElement('div', ['slideshow-container']);
-    let currentSlideIndex = 0;
+    const slideWrapper = createElement('div', ['slideshow-container'], {
+      id: 'skm-slider'
+    });
+    const paginationWrapper = createElement('div', ['holder'], { id: 'skm-pagination'});
 
     // Create slides
-    this.data.rows.forEach((row, index) => {
-        const slideContainer = createElement('div', ['mySlides', 'fade', 'cdx-resource']);
-        const slideIndex = createElement('div', ['numbertext'], {
-            innerHTML: `${index + 1}/${this.data.rows.length}`,
-        });
-        const frontText = createElement('div', ['front-content', 'cdx-resource__message'], {
-            innerHTML: row.front,
-            contentEditable: true, 
-        });
-        const captionText = createElement('div', ['back-content', 'caption', 'cdx-resource__message'], {
-            innerHTML: row.back,
-            contentEditable: true, 
-        });
+    this.renderSlide(slideWrapper);
+    const holderWrapper = this.renderPagination(paginationWrapper);
+    const buttonWrapper = this.renderActions(this.currentSlideIndex);
 
-        
-        slideContainer.appendChild(slideIndex);
-        
-        slideContainer.appendChild(frontText);
-        slideContainer.appendChild(captionText);
-        
-        slideContainer.addEventListener('click', () => this.revealSlide(index));
-        
-        
-        if (index !== 0) {
-          slideContainer.style.display = 'none'; 
-        }
-        
-        wrapper.appendChild(slideContainer);
-      });
-      
-      const editButton = createElement('button', ['editIcon'], {
-        innerHTML: `Edit`,
-        disabled: this.editing, // Disable the Edit button when editing is in progress
+    this.widgetWrapper.appendChild(slideWrapper);  
+    this.widgetWrapper.appendChild(holderWrapper);
+    this.widgetWrapper.appendChild(buttonWrapper);
+
+   return this.widgetWrapper;
+}
+
+renderPagination(element) {
+  this.data.rows.forEach((_, index) => {
+    const dotClass = index === 0 ?  ['dot', 'active'] : ['dot'];
+    const dot = createElement('span', dotClass, {
+      onclick: () => {
+        this.currentSlideIndex = index;
+        this.showSlide(index)
+      },
+    });
+    element.appendChild(dot);
+  });
+
+  return element;
+}
+
+  renderActions(currentSlideIndex) {
+    const editButton = createElement('button', ['editIcon'], {
+      innerHTML: `Edit`,
+      disabled: this.editing, // Disable the Edit button when editing is in progress
     });
     editButton.addEventListener('click', () => this.editSlide(currentSlideIndex));
 
     const saveButton = createElement('button', ['saveButton'], {
-        innerHTML: `Save`,
-        disabled: !this.editing, 
+      innerHTML: `Save`,
+      disabled: !this.editing,
     });
     saveButton.addEventListener('click', () => this.saveSlide(currentSlideIndex));
 
-      this.widgetWrapper.appendChild(wrapper);
-      
-      // Create slider holder
-      const holder = createElement('div', ['holder']);
-      this.data.rows.forEach((_, index) => {
-        const dotClass = index === 0 ?  ['dot', 'active'] : ['dot'];
-        const dot = createElement('span', dotClass, {
-          onclick: () => {
-            currentSlideIndex = index;
-            this.showSlide(index)
-          },
-        });
-        holder.appendChild(dot);
-      });
-      this.widgetWrapper.appendChild(holder);
-      this.widgetWrapper.appendChild(editButton);
-      this.widgetWrapper.appendChild(saveButton);
+    const addButton = createElement('button', ['addButton'], {
+      innerHTML: `Add`,
+    });
+    addButton.addEventListener('click', () => this.addSlide());
 
-    return this.widgetWrapper;
+    const deleteButton = createElement('button', ['deleteButton'], {
+      innerHTML: `Delete`,
+    });
+    deleteButton.addEventListener('click', () => this.deleteSlide(currentSlideIndex));
+
+    const buttonWrapper = createElement('div', ['button-wrapper']);
+    buttonWrapper.appendChild(addButton);
+    buttonWrapper.appendChild(deleteButton);
+    buttonWrapper.appendChild(editButton);
+    buttonWrapper.appendChild(saveButton);
+
+    return buttonWrapper;
+  }
+
+  renderSlide(wrapper) {
+    this.data.rows.forEach((row, index) => {
+      const slideContainer = createElement('div', ['mySlides', 'fade', 'cdx-resource']);
+      const slideIndex = createElement('div', ['numbertext'], {
+        innerHTML: `${index + 1}/${this.data.rows.length}`,
+      });
+      const frontText = createElement('div', ['front-content', 'cdx-resource__message'], {
+        innerHTML: row.front,
+        contentEditable: true,
+      });
+      const captionText = createElement('div', ['back-content', 'caption', 'cdx-resource__message'], {
+        innerHTML: row.back,
+        contentEditable: true,
+      });
+
+
+      slideContainer.appendChild(slideIndex);
+
+      slideContainer.appendChild(frontText);
+      slideContainer.appendChild(captionText);
+
+      slideContainer.addEventListener('click', () => this.revealSlide(index));
+
+
+      if (index !== 0) {
+        slideContainer.style.display = 'none';
+      }
+
+      wrapper.appendChild(slideContainer);
+    });
+  }
+
+addSlide() {
+  this.data.rows.push({
+      front: 'NEW',
+      back: 'Add Content',
+  });
+  this.renderSlide(document.getElementById('skm-slider'));
+
+  const dot = createElement('span', ['dot'], {
+    onclick: () => {
+      this.currentSlideIndex = this.currentSlideIndex + 1;
+      this.showSlide(this.currentSlideIndex + 1)
+    },
+  });
+
+  document.getElementById('skm-pagination').appendChild(dot);
+}
+
+deleteSlide(index) {
+  this.data.rows.splice(index, 1);
+  this.updateSlides();
+}
+
+updateSlides() {
+  this.data.rows.forEach((row, index) => {
+      const frontContent = row.front;
+      const backContent = row.back;
+      const blockIndex = index + 1; // Assuming block indices start from 1
+
+      // Find the block with the matching ID
+      const block = this.api.blocks.getBlockByIndex(0);
+
+      // Update the block content if found
+      if (block) {
+          this.api.blocks.update(block.id, { data: { frontContent, backContent } });
+      } else {
+          console.error(`Block with index ${blockIndex} not found.`);
+      }
+  });
 }
 
 
-// Inside the editSlide method
 
 editSlide(index) {
   this.editing = true; 
   const slides = document.getElementsByClassName('mySlides');
   slides[index].classList.add('isEditing');
-
-    //   const currentSlide = slides[index];
-    //   const frontContent = currentSlide.querySelector('.front-content');
-    //   const backContent = currentSlide.querySelector('.back-content');
-
-    //   frontContent.focus();
-
-    //   frontContent.addEventListener('input', () => {
-    //       this.data.rows[index].front = frontContent.innerHTML;
-    //   });
-
-    //   backContent.addEventListener('input', () => {
-    //       this.data.rows[index].back = backContent.innerHTML;
-    //   });
-
-    //   frontContent.addEventListener('blur', () => {
-    //       this.editing = false;
-    //       this.updateButtonState(); 
-    //   });
-
-    //   backContent.addEventListener('blur', () => {
-    //       this.editing = false;
-    //       this.updateButtonState(); // Update buttons' disabled state
-    //   });
-
-    this.updateButtonState();
+  this.updateButtonState();
 }
 
 
 saveSlide(index) {
   console.log('Save clicked', index); 
   this.editing = false; 
-  
   document.getElementsByClassName('mySlides')[index].classList.remove('isEditing');
-
   this.updateButtonState();
  
 }

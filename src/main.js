@@ -6,7 +6,7 @@ import './style.css'
 const editor = new EditorJS({
   holder: 'editorjs',
    tools: {
-        image: {
+        flip: {
           class: SKMFlipBox,
           inlineToolbar: true
         }
