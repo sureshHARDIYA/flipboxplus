@@ -74,9 +74,7 @@ class SKMFlipBox {
       innerHTML: `Save`,
       disabled: !this.editing,
     });
-    saveButton.addEventListener('click', () =>
-      this.saveSlide(currentSlideIndex),
-    );
+    saveButton.addEventListener('click', () => this.saveSlide());
 
     const addButton = createElement('button', ['action', 'addButton'], {
       innerHTML: `Add`,
@@ -86,9 +84,7 @@ class SKMFlipBox {
     const deleteButton = createElement('button', ['action', 'deleteButton'], {
       innerHTML: `Delete`,
     });
-    deleteButton.addEventListener('click', () =>
-      this.deleteSlide(currentSlideIndex),
-    );
+    deleteButton.addEventListener('click', () => this.deleteSlide());
 
     const buttonWrapper = createElement('div', ['button-wrapper']);
     buttonWrapper.appendChild(addButton);
@@ -175,13 +171,31 @@ class SKMFlipBox {
     this.showSlide(newSlideIndex);
   }
 
-  deleteSlide(index) {
-    console.log('Delete slide', index);
+  deleteSlide() {
+    const index = this.currentSlideIndex;
+
+    if (confirm(`Are you sure you want to delete slide ${index + 1}?`)) {
+      console.log('Delete slide', index);
+      this.data.rows.splice(index, 1);
+
+      const slides = document.getElementsByClassName('mySlides');
+      const dots = document.getElementsByClassName('dot');
+      slides[index].remove();
+      dots[index].remove();
+
+      if (index === this.currentSlideIndex) {
+        if (this.currentSlideIndex >= slides.length) {
+          this.currentSlideIndex = slides.length - 1;
+        }
+      } else if (index < this.currentSlideIndex) {
+        this.currentSlideIndex--;
+      }
+      this.showSlide(this.currentSlideIndex);
+    }
   }
 
   editSlide() {
     this.editing = true;
-    console.log('Edit slide', this.currentSlideIndex);
 
     const slides = document.getElementsByClassName('mySlides');
     this.setEditable(slides[this.currentSlideIndex], true);
