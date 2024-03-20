@@ -8,6 +8,11 @@ class SKMFlipBox {
     };
   }
 
+   static get enableLineBreaks() {
+    return true;
+  }
+
+
   constructor({ data, config, api, readOnly }) {
     this.data = {
       rows: [
@@ -38,100 +43,144 @@ class SKMFlipBox {
       ...config
     };
     this.widgetWrapper = undefined;
-    this.wrapper = undefined;
-    this.settings = [
-      {
-        name: 'FlipBox',
-        icon: `F`,
-        type: 'FLIP'
-      },
-      {
-        name: 'Carousel',
-        icon: `C`,
-        type: 'CAROUSEL'
-      },
-      {
-        name: 'Carousel FlipBox',
-        icon: `CF`,
-        type: 'CAROUSEL_FLIPBOX'
-      }
-    ];
-  }
-
-  renderSettings(){
-    const wrapper = document.createElement('div');
-
-    this.settings.forEach( tune => {
-      let button = document.createElement('div');
-
-      button.classList.add('cdx-settings-button');
-      button.innerHTML = tune.icon;
-      wrapper.appendChild(button);
-
-      button.addEventListener('click', () => {
-        this.config['type'] = tune.type;
-        button.classList.toggle('cdx-settings-button--active');
-      });
-    });
-
-    return wrapper;
+    this.editing = false;
   }
 
   render() {
     this.widgetWrapper = createElement('div', ['outer-container']);
     const wrapper = createElement('div', ['slideshow-container']);
+    let currentSlideIndex = 0;
 
     // Create slides
     this.data.rows.forEach((row, index) => {
-        const slideContainer = createElement('div', ['mySlides', 'fade']);
+        const slideContainer = createElement('div', ['mySlides', 'fade', 'cdx-resource']);
         const slideIndex = createElement('div', ['numbertext'], {
             innerHTML: `${index + 1}/${this.data.rows.length}`,
         });
-        const frontText = createElement('div', ['front-content'], {
+        const frontText = createElement('div', ['front-content', 'cdx-resource__message'], {
             innerHTML: row.front,
+            contentEditable: true, 
         });
-        const captionText = createElement('div', ['back-content', 'caption'], {
+        const captionText = createElement('div', ['back-content', 'caption', 'cdx-resource__message'], {
             innerHTML: row.back,
+            contentEditable: true, 
         });
 
-
-
+        
         slideContainer.appendChild(slideIndex);
+        
         slideContainer.appendChild(frontText);
         slideContainer.appendChild(captionText);
-
+        
         slideContainer.addEventListener('click', () => this.revealSlide(index));
-
-
+        
+        
         if (index !== 0) {
           slideContainer.style.display = 'none'; 
-      }
-
+        }
+        
         wrapper.appendChild(slideContainer);
+      });
+      
+      const editButton = createElement('button', ['editIcon'], {
+        innerHTML: `Edit`,
+        disabled: this.editing, // Disable the Edit button when editing is in progress
     });
+    editButton.addEventListener('click', () => this.editSlide(currentSlideIndex));
 
-    this.widgetWrapper.appendChild(wrapper);
+    const saveButton = createElement('button', ['saveButton'], {
+        innerHTML: `Save`,
+        disabled: !this.editing, 
+    });
+    saveButton.addEventListener('click', () => this.saveSlide(currentSlideIndex));
 
-    // Create slider holder
-    const holder = createElement('div', ['holder']);
-    this.data.rows.forEach((_, index) => {
+      this.widgetWrapper.appendChild(wrapper);
+      
+      // Create slider holder
+      const holder = createElement('div', ['holder']);
+      this.data.rows.forEach((_, index) => {
         const dotClass = index === 0 ?  ['dot', 'active'] : ['dot'];
         const dot = createElement('span', dotClass, {
-            onclick: () => this.showSlide(index),
+          onclick: () => {
+            currentSlideIndex = index;
+            this.showSlide(index)
+          },
         });
         holder.appendChild(dot);
-    });
-
-    this.widgetWrapper.appendChild(holder);
+      });
+      this.widgetWrapper.appendChild(holder);
+      this.widgetWrapper.appendChild(editButton);
+      this.widgetWrapper.appendChild(saveButton);
 
     return this.widgetWrapper;
 }
 
-revealSlide(index) {
-  const slides = document.getElementsByClassName('mySlides');
-  const currentSlide = slides[index];
 
-  currentSlide.classList.toggle('reveal');
+// Inside the editSlide method
+
+editSlide(index) {
+  this.editing = true; 
+  const slides = document.getElementsByClassName('mySlides');
+  slides[index].classList.add('isEditing');
+
+    //   const currentSlide = slides[index];
+    //   const frontContent = currentSlide.querySelector('.front-content');
+    //   const backContent = currentSlide.querySelector('.back-content');
+
+    //   frontContent.focus();
+
+    //   frontContent.addEventListener('input', () => {
+    //       this.data.rows[index].front = frontContent.innerHTML;
+    //   });
+
+    //   backContent.addEventListener('input', () => {
+    //       this.data.rows[index].back = backContent.innerHTML;
+    //   });
+
+    //   frontContent.addEventListener('blur', () => {
+    //       this.editing = false;
+    //       this.updateButtonState(); 
+    //   });
+
+    //   backContent.addEventListener('blur', () => {
+    //       this.editing = false;
+    //       this.updateButtonState(); // Update buttons' disabled state
+    //   });
+
+    this.updateButtonState();
+}
+
+
+saveSlide(index) {
+  console.log('Save clicked', index); 
+  this.editing = false; 
+  
+  document.getElementsByClassName('mySlides')[index].classList.remove('isEditing');
+
+  this.updateButtonState();
+ 
+}
+
+updateButtonState() {
+  const editIcon = this.widgetWrapper.querySelector('.editIcon');
+  const saveButton = this.widgetWrapper.querySelector('.saveButton');
+  
+  if (this.editing) {
+      editIcon.disabled = true;
+      saveButton.disabled = false;
+  } else {
+      editIcon.disabled = false;
+      saveButton.disabled = true;
+  }
+}
+
+revealSlide(index) {
+  console.log('DING DING DING', this.editing);
+  if (!this.editing) {
+      const slides = document.getElementsByClassName('mySlides');
+      const currentSlide = slides[index];
+      currentSlide.classList.toggle('reveal');
+  }
 }
 
 showSlide(index) {
@@ -142,11 +191,9 @@ showSlide(index) {
       if (i === index) {
           slides[i].style.display = 'block';
           slides[i].classList.add('fade'); 
-          slides[i].classList.add('active'); 
       } else {
           slides[i].style.display = 'none';
           slides[i].classList.remove('fade'); 
-          slides[i].classList.remove('active');
       }
   }
 

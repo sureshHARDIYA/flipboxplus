@@ -45,10 +45,10 @@ h1 {
 }
 
 .slideshow-container {
-  max-width: 100%;
   position: relative;
   margin: auto;
-  background-color: #bbb;
+  background-color: #fafafa;
+  width: 100%;
 }
 
 
@@ -102,12 +102,20 @@ img {
 
 /* Number text (1/3 etc) */
 .numbertext {
-  color: #f2f2f2;
+  color: #070000;
   font-size: 12px;
   padding: 8px 12px;
   position: absolute;
   top: 0;
 }
+
+.editIcon {
+  color: #000000;
+  font-size: 12px;
+  padding: 8px 12px;
+
+}
+
 
 /* The dots/bullets/indicators */
 .dot {
@@ -158,7 +166,6 @@ img {
 }
 
 .caption {
-  color: #fff;
   font-size: 13px;
   padding: 8px 12px;
   position: absolute;
@@ -169,18 +176,17 @@ img {
 }
 .front-content, .back-content {
   width: 100%;
-  height: 100%;
   position: absolute;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   top: 0;
   left: 0;
   backface-visibility: hidden;
   min-height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  align-items: center; 
   transition: transform 0.5s;
-  color: #fff;
-
 }
 
 .back-content {
@@ -195,4 +201,37 @@ img {
 .reveal .back-content {
   transform: rotateY(0deg);
   pointer-events: auto;
+}
+
+.cdx-resource {
+  position: relative;
+}
+
+@media all and (min-width: 736px) {
+  .cdx-resource {
+    padding-left: 36px;
+  }
+}
+
+.cdx-resource [contentEditable=true][data-placeholder]::before{
+  position: absolute;
+  content: attr(data-placeholder);
+  color: #707684;
+  font-weight: normal;
+  opacity: 0;
+}
+
+.cdx-resource [contentEditable=true][data-placeholder]:empty::before {
+  opacity: 1;
+}
+
+.cdx-resource [contentEditable=true][data-placeholder]:empty:focus::before {
+  opacity: 0;
+}
+
+
+@media all and (max-width: 735px) {
+  .cdx-resource::before {
+    display: none;
+  }
 }
