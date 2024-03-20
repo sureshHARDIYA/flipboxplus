@@ -116,6 +116,9 @@
   perspective: 1000px;
   cursor: pointer;
 }
+.front-content {
+  font-size: 1.3rem;
+}
 
 .front-content, .back-content {
   width: 100%;
@@ -131,6 +134,8 @@
   min-height: 300px;
   align-items: center; 
   transition: transform 0.5s;
+  padding: 20px;
+  text-align: center;
 }
 
 .back-content {
