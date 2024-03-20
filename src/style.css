@@ -235,3 +235,19 @@ img {
     display: none;
   }
 }
+.holder {
+  margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+.action{
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 10px;
+}
