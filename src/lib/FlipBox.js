@@ -21,9 +21,10 @@ class SKMFlipBox {
   }
 
   constructor({ data, api }) {
+    console.log('data', data);
     this.api = api;
     this.data = {
-      rows: data,
+      rows: data?.rows ?? [],
     };
     this.widgetWrapper = undefined;
     this.editing = false;
@@ -65,7 +66,7 @@ class SKMFlipBox {
     return element;
   }
 
-  renderActions(currentSlideIndex) {
+  renderActions() {
     const editButton = createElement('button', ['action', 'editIcon'], {
       innerHTML: `Edit`,
       disabled: this.editing,
@@ -102,10 +103,23 @@ class SKMFlipBox {
    * @param {wrapper} wrapper
    */
   renderSlider(wrapper) {
-    this.data.rows.forEach((row, index) => {
-      const slideContainer = this.renderSlide(index, row);
-      wrapper.appendChild(slideContainer);
+    if (this.data && 'rows' in this.data && this.data.rows.length > 0) {
+      this.data.rows?.forEach((row, index) => {
+        const slideContainer = this.renderSlide(index, row);
+        wrapper.appendChild(slideContainer);
+      });
+    } else {
+      const emptySlide = this.renderEmptySlide();
+      wrapper.appendChild(emptySlide);
+    }
+  }
+
+  renderEmptySlide() {
+    const emptySlide = createElement('div', ['empty-slide'], {
+      id: 'skm-empty-slide',
     });
+    emptySlide.innerText = 'No slide yet';
+    return emptySlide;
   }
 
   /**
@@ -153,6 +167,11 @@ class SKMFlipBox {
 
   addSlide() {
     const newSlideIndex = this.data.rows.length;
+    const emptyDiv = document.getElementById('skm-empty-slide');
+    if (emptyDiv) {
+      emptyDiv.remove();
+    }
+
     const row = {
       front: `<h3>New Slide title ${newSlideIndex + 1}</h3>`,
       back: `New Slide Content ${newSlideIndex + 1}`,
@@ -177,7 +196,6 @@ class SKMFlipBox {
     const index = this.currentSlideIndex;
 
     if (confirm(`Are you sure you want to delete slide ${index + 1}?`)) {
-      console.log('Delete slide', index);
       this.data.rows.splice(index, 1);
 
       const slides = document.getElementsByClassName('mySlides');

@@ -165,6 +165,13 @@ img {
   cursor: pointer;
 }
 
+.empty-slide {
+  min-height: 300px;
+  position: relative;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
 .caption {
   font-size: 13px;
   padding: 8px 12px;
