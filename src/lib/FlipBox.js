@@ -3,7 +3,7 @@ import { createElement } from '../helpers/createElement';
 class SKMFlipBox {
   static get toolbox() {
     return {
-      title: 'Flipbox',
+      title: 'FlipBox',
       icon: 'FB',
     };
   }
@@ -12,14 +12,10 @@ class SKMFlipBox {
     return true;
   }
 
-  constructor({ data, config, api, readOnly }) {
+  constructor({ data, api }) {
     this.api = api;
     this.data = {
       rows: data,
-    };
-    this.config = {
-      type: 'CAROUSEL',
-      ...config,
     };
     this.widgetWrapper = undefined;
     this.editing = false;
@@ -120,7 +116,7 @@ class SKMFlipBox {
       'fade',
       'cdx-resource',
     ]);
-    const slideIndex = createElement('div', ['numbertext'], {
+    const slideIndex = createElement('div', ['slideIndex'], {
       innerHTML: `${index + 1}/${this.data.rows.length}`,
     });
     const frontText = createElement(
@@ -128,7 +124,7 @@ class SKMFlipBox {
       ['front-content', 'cdx-resource__message'],
       {
         innerHTML: row.front,
-        contentEditable: true,
+        contentEditable: false,
       },
     );
     const captionText = createElement(
@@ -136,7 +132,7 @@ class SKMFlipBox {
       ['back-content', 'caption', 'cdx-resource__message'],
       {
         innerHTML: row.back,
-        contentEditable: true,
+        contentEditable: false,
       },
     );
 
@@ -182,17 +178,23 @@ class SKMFlipBox {
     console.log('Edit slide', this.currentSlideIndex);
 
     const slides = document.getElementsByClassName('mySlides');
-    slides[this.currentSlideIndex].classList.add('isEditing');
+    this.setEditable(slides[this.currentSlideIndex], true);
     this.updateButtonState();
+  }
+
+  setEditable(slide, value) {
+    slide.querySelector('.front-content').contentEditable = value;
+    slide.querySelector('.back-content').contentEditable = value;
   }
 
   saveSlide() {
     this.editing = false;
     const slides = document.getElementsByClassName('mySlides');
     const currentSlide = slides[this.currentSlideIndex];
+    this.setEditable(currentSlide, false);
+
     const frontContent = currentSlide.querySelector('.front-content');
     const backContent = currentSlide.querySelector('.back-content');
-
     this.data.rows[this.currentSlideIndex] = {
       front: frontContent.innerHTML,
       back: backContent.innerHTML,
