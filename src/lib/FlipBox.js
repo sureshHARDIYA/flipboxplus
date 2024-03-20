@@ -12,6 +12,12 @@ class SKMFlipBox {
     return true;
   }
 
+  static get sanitize() {
+    return {
+      rows: true,
+    };
+  }
+
   constructor({ data, api }) {
     this.api = api;
     this.data = {
