@@ -9,7 +9,10 @@ const editor = new EditorJS({
    */
   holder: 'editorjs',
    tools: {
-        image: SKMFlipBox
+        image: {
+          class: SKMFlipBox,
+          inlineToolbar: true
+        }
       }
 });
 

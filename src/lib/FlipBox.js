@@ -33,32 +33,132 @@ class SKMFlipBox {
         },
       ],
     };
+    this.config = {
+      type: 'CAROUSEL',
+      ...config
+    };
+    this.widgetWrapper = undefined;
+    this.wrapper = undefined;
+    this.settings = [
+      {
+        name: 'FlipBox',
+        icon: `F`,
+        type: 'FLIP'
+      },
+      {
+        name: 'Carousel',
+        icon: `C`,
+        type: 'CAROUSEL'
+      },
+      {
+        name: 'Carousel FlipBox',
+        icon: `CF`,
+        type: 'CAROUSEL_FLIPBOX'
+      }
+    ];
   }
 
-  render() {
-    const wrapper = createElement('div', ['slideshow-container']);
+  renderSettings(){
+    const wrapper = document.createElement('div');
 
-    const slidContainer = createElement('div', ['mySlides', 'fade']);
-    const slideIndex = createElement('div', ['numbertext'], {
-      innerContent: '1/3',
+    this.settings.forEach( tune => {
+      let button = document.createElement('div');
+
+      button.classList.add('cdx-settings-button');
+      button.innerHTML = tune.icon;
+      wrapper.appendChild(button);
+
+      button.addEventListener('click', () => {
+        this.config['type'] = tune.type;
+        button.classList.toggle('cdx-settings-button--active');
+      });
     });
-    const frontText = createElement('div', ['front-content'], {
-      innerHTML: 'Something will come up',
-    });
-    const captionText = createElement('div', ['text']);
-    slidContainer.appendChild(slideIndex);
-    slidContainer.appendChild(frontText);
-    slidContainer.appendChild(captionText);
-
-    wrapper.appendChild(slidContainer);
-
-    const prev = createElement('a', 'pre');
-    const next = createElement('a', 'next');
-    wrapper.appendChild(prev);
-    wrapper.appendChild(next);
 
     return wrapper;
   }
+
+  render() {
+    this.widgetWrapper = createElement('div', ['outer-container']);
+    const wrapper = createElement('div', ['slideshow-container']);
+
+    // Create slides
+    this.data.rows.forEach((row, index) => {
+        const slideContainer = createElement('div', ['mySlides', 'fade']);
+        const slideIndex = createElement('div', ['numbertext'], {
+            innerHTML: `${index + 1}/${this.data.rows.length}`,
+        });
+        const frontText = createElement('div', ['front-content'], {
+            innerHTML: row.front,
+        });
+        const captionText = createElement('div', ['back-content', 'caption'], {
+            innerHTML: row.back,
+        });
+
+
+
+        slideContainer.appendChild(slideIndex);
+        slideContainer.appendChild(frontText);
+        slideContainer.appendChild(captionText);
+
+        slideContainer.addEventListener('click', () => this.revealSlide(index));
+
+
+        if (index !== 0) {
+          slideContainer.style.display = 'none'; 
+      }
+
+        wrapper.appendChild(slideContainer);
+    });
+
+    this.widgetWrapper.appendChild(wrapper);
+
+    // Create slider holder
+    const holder = createElement('div', ['holder']);
+    this.data.rows.forEach((_, index) => {
+        const dotClass = index === 0 ?  ['dot', 'active'] : ['dot'];
+        const dot = createElement('span', dotClass, {
+            onclick: () => this.showSlide(index),
+        });
+        holder.appendChild(dot);
+    });
+
+    this.widgetWrapper.appendChild(holder);
+
+    return this.widgetWrapper;
+}
+
+revealSlide(index) {
+  const slides = document.getElementsByClassName('mySlides');
+  const currentSlide = slides[index];
+
+  currentSlide.classList.toggle('reveal');
+}
+
+showSlide(index) {
+  const slides = document.getElementsByClassName('mySlides');
+  const dots = document.getElementsByClassName('dot');
+
+  for (let i = 0; i < slides.length; i++) {
+      if (i === index) {
+          slides[i].style.display = 'block';
+          slides[i].classList.add('fade'); 
+          slides[i].classList.add('active'); 
+      } else {
+          slides[i].style.display = 'none';
+          slides[i].classList.remove('fade'); 
+          slides[i].classList.remove('active');
+      }
+  }
+
+  for (let i = 0; i < dots.length; i++) {
+    if (i === index) {
+        dots[i].classList.add('active');
+    } else {
+        dots[i].classList.remove('active');
+    }
+}
+}
+
 
   save(blockContent) {
     return {
