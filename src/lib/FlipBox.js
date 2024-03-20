@@ -86,6 +86,7 @@ class SKMFlipBox {
 
     const deleteButton = createElement('button', ['action', 'deleteButton'], {
       innerHTML: `Delete`,
+      disabled: this.editing || this.data.rows.length === 0,
     });
     deleteButton.addEventListener('click', () => this.deleteSlide());
 

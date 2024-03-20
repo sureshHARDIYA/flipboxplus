@@ -189,13 +189,24 @@
 }
 .holder {
   margin-bottom: 1rem;
-    margin-top: 1rem;
+  margin-top: 1rem;
+  text-align: center;
 }
+
 .action{
     font-size: 13px;
-    cursor: pointer;
+    cursor: pointer !important;
     border-radius: 5px;
     font-weight: bold;
+    border: 1px solid #707684;
+    padding: 3px 10px;
+
+}
+
+.action:disabled {
+  opacity: 0.5; 
+  cursor: not-allowed; 
+  background: #e6e6e6;
 }
 
 .button-wrapper {
