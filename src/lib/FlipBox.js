@@ -55,6 +55,7 @@ class SKMFlipBox {
       const dotClass = index === 0 ? ['dot', 'active'] : ['dot'];
       const dot = createElement('span', dotClass, {
         onclick: () => {
+          console.log('Clicked on', this.currentSlideIndex);
           this.currentSlideIndex = index;
           this.showSlide(index);
         },
@@ -68,7 +69,7 @@ class SKMFlipBox {
   renderActions() {
     const editButton = createElement('button', ['action', 'editIcon'], {
       innerHTML: `Edit`,
-      disabled: this.editing,
+      disabled: this.editing || this.data.rows.length === 0,
     });
     editButton.addEventListener('click', (event) => {
       event.preventDefault();
