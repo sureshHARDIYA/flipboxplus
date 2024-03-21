@@ -178,7 +178,10 @@ class SKMFlipBox {
       front: `<div><h3>New Slide title ${newSlideIndex + 1}</h3></div>`,
       back: `<div>New Slide Content ${newSlideIndex + 1}</div>`,
     };
-    this.data.rows.push(row);
+
+    const rowsCopy = [...this.data.rows];
+    rowsCopy.push(row);
+    this.data.rows = rowsCopy;
 
     document
       .getElementById('skm-slider')
