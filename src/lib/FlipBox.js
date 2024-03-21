@@ -148,11 +148,11 @@ class SKMFlipBox {
       innerHTML: `${index + 1}/${this.data.rows.length}`,
     });
     const frontText = createElement('div', ['front-content', 'editable'], {
-      innerHTML: row.front,
+      innerHTML: `<div>${row.front}</div>`,
       contentEditable: false,
     });
     const captionText = createElement('div', ['back-content', 'editable'], {
-      innerHTML: row.back,
+      innerHTML: `<div>${row.back}</div>`,
       contentEditable: false,
     });
 
@@ -175,8 +175,8 @@ class SKMFlipBox {
     }
 
     const row = {
-      front: `<h3>New Slide title ${newSlideIndex + 1}</h3>`,
-      back: `New Slide Content ${newSlideIndex + 1}`,
+      front: `<div><h3>New Slide title ${newSlideIndex + 1}</h3></div>`,
+      back: `<div>New Slide Content ${newSlideIndex + 1}</div>`,
     };
     this.data.rows.push(row);
 
