@@ -250,10 +250,13 @@ class SKMFlipBox {
 
     const frontContent = currentSlide.querySelector('.front-content');
     const backContent = currentSlide.querySelector('.back-content');
-    this.data.rows[this.currentSlideIndex] = {
+
+    const rowsCopy = [...this.data.rows];
+    rowsCopy[this.currentSlideIndex] = {
       front: frontContent.innerHTML,
       back: backContent.innerHTML,
     };
+    this.data.rows = rowsCopy;
 
     document
       .getElementsByClassName('mySlides')
