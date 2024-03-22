@@ -195,6 +195,7 @@ class SKMFlipBox {
 
     document.getElementById('skm-pagination').appendChild(dot);
     this.showSlide(newSlideIndex);
+    this.updateButtonState();
   }
 
   deleteSlide() {
@@ -217,6 +218,8 @@ class SKMFlipBox {
       }
       this.showSlide(this.currentSlideIndex);
     }
+
+    this.updateButtonState();
   }
 
   editSlide() {
@@ -271,6 +274,7 @@ class SKMFlipBox {
   updateButtonState() {
     const editIcon = this.widgetWrapper.querySelector('.editIcon');
     const saveButton = this.widgetWrapper.querySelector('.saveButton');
+    const deleteButton = this.widgetWrapper.querySelector('.deleteButton');
 
     if (this.editing) {
       editIcon.disabled = true;
@@ -278,6 +282,14 @@ class SKMFlipBox {
     } else {
       editIcon.disabled = false;
       saveButton.disabled = true;
+    }
+
+    if(this.data.rows.length) {
+      deleteButton.disabled = false;
+      editIcon.disabled = false;
+    } else {
+      deleteButton.disabled = true;
+      editIcon.disabled = true;
     }
   }
 
