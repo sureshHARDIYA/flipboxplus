@@ -1,3 +1,5 @@
+import Button from './Button';
+import SlideContainer from './SlideContainer';
 import { createElement } from '../helpers/createElement';
 
 import './style.css';
@@ -32,25 +34,26 @@ class SKMFlipBox {
 
   render() {
     this.widgetWrapper = createElement('div', ['outer-container']);
-    const slideWrapper = createElement('div', ['slideshow-container'], {
-      id: 'skm-slider',
-    });
-    const paginationWrapper = createElement('div', ['holder'], {
-      id: 'skm-pagination',
-    });
+    const slideContainer = new SlideContainer({
+      slides: this.data.rows,
+      currentSlideIndex: this.currentSlideIndex,
+      editing: this.editing,
+    }).render();
 
-    this.renderSlider(slideWrapper);
-    const holderWrapper = this.renderPagination(paginationWrapper);
-    const buttonWrapper = this.renderActions(this.currentSlideIndex);
+    const paginationWrapper = this.renderPagination();
+    const buttonWrapper = this.renderActions();
 
-    this.widgetWrapper.appendChild(slideWrapper);
-    this.widgetWrapper.appendChild(holderWrapper);
+    this.widgetWrapper.appendChild(slideContainer);
+    this.widgetWrapper.appendChild(paginationWrapper);
     this.widgetWrapper.appendChild(buttonWrapper);
 
     return this.widgetWrapper;
   }
 
-  renderPagination(element) {
+  renderPagination() {
+    const paginationWrapper = createElement('div', ['holder'], {
+      id: 'skm-pagination',
+    });
     this.data.rows.forEach((_, index) => {
       const dotClass = index === this.currentSlideIndex ? ['dot', 'active'] : ['dot'];
       const dot = createElement('span', dotClass, {
@@ -59,23 +62,35 @@ class SKMFlipBox {
           this.showSlide(index);
         },
       });
-      element.appendChild(dot);
+      paginationWrapper.appendChild(dot);
     });
-  
-    return element;
+    return paginationWrapper;
   }
   
 
   renderActions() {
-    const editButton = createElement('button', ['action', 'editIcon'], {
-      innerHTML: `Edit`,
+    // const editButton = createElement('button', ['action', 'editIcon'], {
+    //   innerHTML: `Edit`,
+    //   disabled: this.editing || this.data.rows.length === 0,
+    // });
+
+
+    // editButton.addEventListener('click', (event) => {
+    //   console.log
+    //   this.editing = true;
+    //   event.preventDefault();
+    //   event.stopPropagation();
+    //   this.editSlide();
+    // });
+
+    const editButton = new Button({
+      text: 'Edit',
       disabled: this.editing || this.data.rows.length === 0,
-    });
-    editButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.editSlide();
-    });
+      classList: ['action', 'editIcon'],
+      onClick: (event) => {
+        this.editSlide();
+      },
+    }).render();
 
     const saveButton = createElement('button', ['action', 'saveButton'], {
       innerHTML: `Save`,
