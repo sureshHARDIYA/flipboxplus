@@ -52,19 +52,19 @@ class SKMFlipBox {
 
   renderPagination(element) {
     this.data.rows.forEach((_, index) => {
-      const dotClass = index === 0 ? ['dot', 'active'] : ['dot'];
+      const dotClass = index === this.currentSlideIndex ? ['dot', 'active'] : ['dot'];
       const dot = createElement('span', dotClass, {
         onclick: () => {
-          console.log('Clicked on', this.currentSlideIndex);
           this.currentSlideIndex = index;
           this.showSlide(index);
         },
       });
       element.appendChild(dot);
     });
-
+  
     return element;
   }
+  
 
   renderActions() {
     const editButton = createElement('button', ['action', 'editIcon'], {
@@ -173,42 +173,61 @@ class SKMFlipBox {
     if (emptyDiv) {
       emptyDiv.remove();
     }
-
+  
     const row = {
       front: `<div><h3>New Slide title ${newSlideIndex + 1}</h3></div>`,
       back: `<div>New Slide Content ${newSlideIndex + 1}</div>`,
     };
-
+  
     const rowsCopy = [...this.data.rows];
     rowsCopy.push(row);
     this.data.rows = rowsCopy;
-
+  
     document
       .getElementById('skm-slider')
       .appendChild(this.renderSlide(newSlideIndex, row));
-
+  
     const dot = createElement('span', ['dot'], {
       onclick: () => {
-        this.showSlide(newSlideIndex);
+        this.showSlide(newSlideIndex); 
       },
     });
-
+  
     document.getElementById('skm-pagination').appendChild(dot);
     this.showSlide(newSlideIndex);
     this.updateButtonState();
+
+    // Update slide indexes
+    this.updateIndex();
+  }
+  
+
+  updateIndex() {
+    const slides = document.getElementsByClassName('mySlides');
+    for (let i = 0; i < slides.length; i++) {
+      const slideIndex = slides[i].querySelector('.slideIndex');
+      if (slideIndex) {
+        slideIndex.innerHTML = `${i + 1}/${this.data.rows.length}`;
+      }
+    }
   }
 
   deleteSlide() {
     const index = this.currentSlideIndex;
-
+  
     if (confirm(`Are you sure you want to delete slide ${index + 1}?`)) {
       this.data.rows.splice(index, 1);
-
+  
       const slides = document.getElementsByClassName('mySlides');
       const dots = document.getElementsByClassName('dot');
+  
       slides[index].remove();
       dots[index].remove();
-
+  
+      // Update slide indexes
+      this.updateIndex();
+  
+      // Update currentSlideIndex if needed
       if (index === this.currentSlideIndex) {
         if (this.currentSlideIndex >= slides.length) {
           this.currentSlideIndex = slides.length - 1;
@@ -216,12 +235,19 @@ class SKMFlipBox {
       } else if (index < this.currentSlideIndex) {
         this.currentSlideIndex--;
       }
+  
+      // Update pagination dots
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].onclick = () => this.showSlide(i);
+      }
+  
+      // Show the updated current slide
       this.showSlide(this.currentSlideIndex);
+  
+      this.updateButtonState();
     }
-
-    this.updateButtonState();
   }
-
+  
   editSlide() {
     this.editing = true;
 
