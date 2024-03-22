@@ -1,3 +1,4 @@
+import Slide from './Slide';
 import Button from './Button';
 import SlideContainer from './SlideContainer';
 import { createElement } from '../helpers/createElement';
@@ -32,13 +33,19 @@ class SKMFlipBox {
     this.currentSlideIndex = 0;
   }
 
+  setEditing(value) {
+    this.editing = value;
+  }
+
   render() {
     this.widgetWrapper = createElement('div', ['outer-container']);
-    const slideContainer = new SlideContainer({
-      slides: this.data.rows,
-      currentSlideIndex: this.currentSlideIndex,
-      editing: this.editing,
-    }).render();
+    const slideContainer = new SlideContainer(
+      {
+        slides: this.data.rows,
+        currentSlideIndex: this.currentSlideIndex,
+      },
+      this,
+    ).render();
 
     const paginationWrapper = this.renderPagination();
     const buttonWrapper = this.renderActions();
@@ -55,7 +62,8 @@ class SKMFlipBox {
       id: 'skm-pagination',
     });
     this.data.rows.forEach((_, index) => {
-      const dotClass = index === this.currentSlideIndex ? ['dot', 'active'] : ['dot'];
+      const dotClass =
+        index === this.currentSlideIndex ? ['dot', 'active'] : ['dot'];
       const dot = createElement('span', dotClass, {
         onclick: () => {
           this.currentSlideIndex = index;
@@ -66,156 +74,98 @@ class SKMFlipBox {
     });
     return paginationWrapper;
   }
-  
 
   renderActions() {
-    // const editButton = createElement('button', ['action', 'editIcon'], {
-    //   innerHTML: `Edit`,
-    //   disabled: this.editing || this.data.rows.length === 0,
-    // });
-
-
-    // editButton.addEventListener('click', (event) => {
-    //   console.log
-    //   this.editing = true;
-    //   event.preventDefault();
-    //   event.stopPropagation();
-    //   this.editSlide();
-    // });
+    const addButton = new Button({
+      text: 'Add',
+      classList: ['action', 'addButton'],
+      onClick: () => {
+        this.addSlide();
+      },
+    }).render();
 
     const editButton = new Button({
       text: 'Edit',
       disabled: this.editing || this.data.rows.length === 0,
       classList: ['action', 'editIcon'],
-      onClick: (event) => {
+      onClick: () => {
         this.editSlide();
       },
     }).render();
 
-    const saveButton = createElement('button', ['action', 'saveButton'], {
-      innerHTML: `Save`,
+    const saveButton = new Button({
+      text: 'Save',
       disabled: !this.editing,
-    });
+      classList: ['action', 'saveButton'],
+      onClick: () => {
+        this.saveSlide();
+      },
+    }).render();
 
-    saveButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.saveSlide();
-    });
-
-    const addButton = createElement('button', ['action', 'addButton'], {
-      innerHTML: `Add`,
-    });
-    addButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.addSlide();
-    });
-
-    const deleteButton = createElement('button', ['action', 'deleteButton'], {
-      innerHTML: `Delete`,
+    const deleteButton = new Button({
+      text: 'Delete',
       disabled: this.editing || this.data.rows.length === 0,
-    });
-    deleteButton.addEventListener('click', () => this.deleteSlide());
+      classList: ['action', 'deleteButton'],
+      onClick: () => {
+        this.deleteSlide();
+      },
+    }).render();
 
     const buttonWrapper = createElement('div', ['button-wrapper']);
     buttonWrapper.appendChild(addButton);
-    buttonWrapper.appendChild(deleteButton);
     buttonWrapper.appendChild(editButton);
     buttonWrapper.appendChild(saveButton);
+    buttonWrapper.appendChild(deleteButton);
 
     return buttonWrapper;
   }
 
-  /**
-   * Renders the entire slider container
-   * @param {wrapper} wrapper
-   */
-  renderSlider(wrapper) {
-    if (this.data && 'rows' in this.data && this.data.rows.length > 0) {
-      this.data.rows?.forEach((row, index) => {
-        const slideContainer = this.renderSlide(index, row);
-        wrapper.appendChild(slideContainer);
-      });
-    } else {
-      const emptySlide = this.renderEmptySlide();
-      wrapper.appendChild(emptySlide);
-    }
-  }
-
-  renderEmptySlide() {
-    const emptySlide = createElement('div', ['empty-slide'], {
-      id: 'skm-empty-slide',
-    });
-    emptySlide.innerText = 'No slide yet';
-    return emptySlide;
-  }
-
-  /**
-   * Renders one slide
-   * @param {int} index
-   * @param {object} row
-   * @returns
-   */
-  renderSlide(index, row) {
-    const slideContainer = createElement('div', ['mySlides', 'fade']);
-    const slideIndex = createElement('div', ['slideIndex'], {
-      innerHTML: `${index + 1}/${this.data.rows.length}`,
-    });
-    const frontText = createElement('div', ['front-content', 'editable'], {
-      innerHTML: `<div>${row.front}</div>`,
-      contentEditable: false,
-    });
-    const captionText = createElement('div', ['back-content', 'editable'], {
-      innerHTML: `<div>${row.back}</div>`,
-      contentEditable: false,
-    });
-
-    slideContainer.appendChild(slideIndex);
-    slideContainer.appendChild(frontText);
-    slideContainer.appendChild(captionText);
-    slideContainer.addEventListener('click', () => this.revealSlide(index));
-
-    if (index !== 0) {
-      slideContainer.style.display = 'none';
-    }
-    return slideContainer;
-  }
-
   addSlide() {
+    this.setEditing(false);
     const newSlideIndex = this.data.rows.length;
-    const emptyDiv = document.getElementById('skm-empty-slide');
-    if (emptyDiv) {
-      emptyDiv.remove();
+
+    // Remove empty slide if it exists
+    const emptySlide = document.getElementById('skm-empty-slide');
+    if (emptySlide) {
+      emptySlide.remove();
     }
-  
-    const row = {
-      front: `<div><h3>New Slide title ${newSlideIndex + 1}</h3></div>`,
-      back: `<div>New Slide Content ${newSlideIndex + 1}</div>`,
-    };
-  
-    const rowsCopy = [...this.data.rows];
-    rowsCopy.push(row);
-    this.data.rows = rowsCopy;
-  
-    document
-      .getElementById('skm-slider')
-      .appendChild(this.renderSlide(newSlideIndex, row));
-  
-    const dot = createElement('span', ['dot'], {
-      onclick: () => {
-        this.showSlide(newSlideIndex); 
+
+    // Create a new slide object
+    const newSlide = new Slide(
+      {
+        front: `<h3>New Slide title ${newSlideIndex + 1}</h3>`,
+        back: `<div>New Slide Content ${newSlideIndex + 1}</div>`,
       },
+      newSlideIndex,
+      this.data.rows.length,
+      this,
+    );
+
+    // Add the new slide to the data
+    this.data.rows.push({
+      front: newSlide.front,
+      back: newSlide.back,
     });
-  
-    document.getElementById('skm-pagination').appendChild(dot);
+
+    // Render the new slide and append it to the slider container
+    const sliderContainer = document.getElementById('skm-slider');
+    const newSlideElement = newSlide.render(newSlideIndex, true);
+    sliderContainer.appendChild(newSlideElement);
+
+    // Create a new pagination dot and append it to the pagination holder
+    const paginationHolder = document.getElementById('skm-pagination');
+    const newDot = createElement('span', ['dot'], {
+      onclick: () => this.showSlide(newSlideIndex),
+    });
+    paginationHolder.appendChild(newDot);
+
+    // Show the new slide and update button state
     this.showSlide(newSlideIndex);
     this.updateButtonState();
 
     // Update slide indexes
     this.updateIndex();
   }
-  
 
   updateIndex() {
     const slides = document.getElementsByClassName('mySlides');
@@ -229,19 +179,19 @@ class SKMFlipBox {
 
   deleteSlide() {
     const index = this.currentSlideIndex;
-  
+
     if (confirm(`Are you sure you want to delete slide ${index + 1}?`)) {
       this.data.rows.splice(index, 1);
-  
+
       const slides = document.getElementsByClassName('mySlides');
       const dots = document.getElementsByClassName('dot');
-  
+
       slides[index].remove();
       dots[index].remove();
-  
+
       // Update slide indexes
       this.updateIndex();
-  
+
       // Update currentSlideIndex if needed
       if (index === this.currentSlideIndex) {
         if (this.currentSlideIndex >= slides.length) {
@@ -250,21 +200,21 @@ class SKMFlipBox {
       } else if (index < this.currentSlideIndex) {
         this.currentSlideIndex--;
       }
-  
+
       // Update pagination dots
       for (let i = 0; i < dots.length; i++) {
         dots[i].onclick = () => this.showSlide(i);
       }
-  
+
       // Show the updated current slide
       this.showSlide(this.currentSlideIndex);
-  
+
       this.updateButtonState();
     }
   }
-  
+
   editSlide() {
-    this.editing = true;
+    this.setEditing(true);
 
     const slides = document.getElementsByClassName('mySlides');
     const currentSlide = slides[this.currentSlideIndex];
@@ -273,13 +223,13 @@ class SKMFlipBox {
     // Place cursor at the end of the contenteditable element
     const editableFront = currentSlide.querySelector('.front-content');
     const editableBack = currentSlide.querySelector('.back-content');
-  
+
     if (currentSlide.classList.contains('reveal')) {
       editableBack.focus();
     } else {
       editableFront.focus();
     }
-  
+
     // Place cursor at the end of the contenteditable element for both front and back content
     const selection = window.getSelection();
     const anchorNode = selection.anchorNode;
@@ -317,7 +267,7 @@ class SKMFlipBox {
   }
 
   saveSlide() {
-    this.editing = false;
+    this.setEditing(false);
     const slides = document.getElementsByClassName('mySlides');
     const currentSlide = slides[this.currentSlideIndex];
     this.setEditable(currentSlide, false);
@@ -352,7 +302,7 @@ class SKMFlipBox {
       saveButton.disabled = true;
     }
 
-    if(this.data.rows.length) {
+    if (this.data.rows.length) {
       deleteButton.disabled = false;
       editIcon.disabled = false;
     } else {

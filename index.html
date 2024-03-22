@@ -61,10 +61,9 @@
   
       const saveButton = document.getElementById('saveJi');
   
-      saveButton.addEventListener('click', () => {
-        editor.save().then( savedData => {
-          console.log('savedData', savedData);
-        })
+      saveButton.addEventListener('click', async () => {
+        const savedData = await editor.save();
+        console.log('savedData', savedData)
       })
   </script>
   </body>

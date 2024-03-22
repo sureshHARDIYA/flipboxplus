@@ -136,7 +136,6 @@
   left: 0;
   backface-visibility: hidden;
   min-height: 300px;
-  align-items: center; 
   transition: transform 0.5s;
   text-align: center;
 }
@@ -187,4 +186,10 @@
 
 .focus-visible {
   outline: 1px solid blue;
+}
+
+.deleteButton {
+  border: 1px solid red;
+  background: rgb(238, 161, 161);
+  color: rgb(18, 3, 3);
 }
