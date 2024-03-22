@@ -229,7 +229,34 @@ class SKMFlipBox {
     const currentSlide = slides[this.currentSlideIndex];
     this.setEditable(currentSlide, true);
 
+    // Place cursor at the end of the contenteditable element
+    const editableFront = currentSlide.querySelector('.front-content');
+    const editableBack = currentSlide.querySelector('.back-content');
+  
+    if (currentSlide.classList.contains('reveal')) {
+      editableBack.focus();
+    } else {
+      editableFront.focus();
+    }
+  
+    // Place cursor at the end of the contenteditable element for both front and back content
+    const selection = window.getSelection();
+    const anchorNode = selection.anchorNode;
+    if (editableFront.contains(anchorNode)) {
+      this.setCursorToEnd(editableFront);
+    } else if (editableBack.contains(anchorNode)) {
+      this.setCursorToEnd(editableBack);
+    }
     this.updateButtonState();
+  }
+
+  setCursorToEnd(editableArea) {
+    const range = document.createRange();
+    const sel = window.getSelection();
+    range.selectNodeContents(editableArea);
+    range.collapse(false); // Place cursor at the end
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
 
   setEditable(slide, value) {
