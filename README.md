@@ -1,6 +1,6 @@
 # EditorJS Carousel Plugin
 
-**EditorJS Carousel Plugin** is a custom tool for the (EditorJS)[https://editorjs.io/] framework that enables users to add, edit, and delete text carousels within the editor. This plugin provides a seamless way for users to incorporate carousel components into their EditorJS content, complete with formatting options available through the inline toolbar.
+**EditorJS Carousel Plugin** is a custom tool for the [EditorJS](https://editorjs.io/) framework that enables users to add, edit, and delete text carousels within the editor. This plugin provides a seamless way for users to incorporate carousel components into their EditorJS content, complete with formatting options available through the inline toolbar.
 
 ## Features
 
@@ -34,3 +34,7 @@ const editor = new EditorJS({
 });
 
 ```
+
+### Demo
+
+![Demo](demo.gif)
