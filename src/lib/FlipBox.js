@@ -142,10 +142,12 @@ class SKMFlipBox {
     );
 
     // Add the new slide to the data
-    this.data.rows.push({
+    const rowsCopy = [...this.data.rows];
+    rowsCopy[newSlideIndex] = {
       front: newSlide.front,
       back: newSlide.back,
-    });
+    };
+    this.data.rows = rowsCopy;
 
     // Render the new slide and append it to the slider container
     const sliderContainer = document.getElementById('skm-slider');
@@ -231,24 +233,24 @@ class SKMFlipBox {
     }
 
     // Place cursor at the end of the contenteditable element for both front and back content
-    const selection = window.getSelection();
-    const anchorNode = selection.anchorNode;
-    if (editableFront.contains(anchorNode)) {
-      this.setCursorToEnd(editableFront);
-    } else if (editableBack.contains(anchorNode)) {
-      this.setCursorToEnd(editableBack);
-    }
+    // const selection = window.getSelection();
+    // const anchorNode = selection.anchorNode;
+    // if (editableFront.contains(anchorNode)) {
+    //   this.setCursorToEnd(editableFront);
+    // } else if (editableBack.contains(anchorNode)) {
+    //   this.setCursorToEnd(editableBack);
+    // }
     this.updateButtonState();
   }
 
-  setCursorToEnd(editableArea) {
-    const range = document.createRange();
-    const sel = window.getSelection();
-    range.selectNodeContents(editableArea);
-    range.collapse(false); // Place cursor at the end
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
+  // setCursorToEnd(editableArea) {
+  //   const range = document.createRange();
+  //   const sel = window.getSelection();
+  //   range.selectNodeContents(editableArea);
+  //   range.collapse(false); // Place cursor at the end
+  //   sel.removeAllRanges();
+  //   sel.addRange(range);
+  // }
 
   setEditable(slide, value) {
     slide.querySelector('.front-content').contentEditable = value;
