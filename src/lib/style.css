@@ -1,12 +1,3 @@
-#editorjs {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  width: 100%;
-  border: 1px solid red;
-}
-
 .slideshow-container {
   position: relative;
   margin: auto;
@@ -43,8 +34,6 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-
-
 /* Number text (1/3 etc) */
 .slideIndex {
   color: #070000;
@@ -57,9 +46,7 @@
 .editIcon {
   font-size: 12px;
   padding: 8px 12px;
-
 }
-
 
 /* The dots/bullets/indicators */
 .dot {
@@ -124,7 +111,8 @@
   font-size: 1.3rem;
 }
 
-.front-content, .back-content {
+.front-content,
+.back-content {
   width: 100%;
   position: absolute;
   display: flex;
@@ -160,20 +148,19 @@
   text-align: center;
 }
 
-.action{
-    font-size: 13px;
-    cursor: pointer !important;
-    border-radius: 5px;
-    font-weight: bold;
-    border: 1px solid #707684;
-    padding: 3px 10px;
-
+.action {
+  font-size: 13px;
+  cursor: pointer !important;
+  border-radius: 5px;
+  font-weight: bold;
+  border: 1px solid #707684;
+  padding: 3px 10px;
 }
 
 .editIcon:disabled,
 .action:disabled {
-  opacity: 0.5; 
-  cursor: not-allowed !important; 
+  opacity: 0.5;
+  cursor: not-allowed !important;
   background: #e6e6e6;
 }
 
